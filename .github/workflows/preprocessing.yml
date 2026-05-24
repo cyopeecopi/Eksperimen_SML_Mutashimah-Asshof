@@ -24,9 +24,9 @@ jobs:
         pip install pandas scikit-learn
 
     - name: 4. Menjalankan Script Preprocessing
-      # PENTING: Ganti automate_Mu_tashimah Asshof.py dengan nama file asli milikmu!
+      # PENTING: Ganti dengan nama file asli milikmu!
       run: |
-        python preprocessing/automate_Mu_tashimah Asshof.py
+        python preprocessing/automate_Mutashimah_Asshof.py
 
     - name: 5. Menyimpan Data Bersih ke Repositori
       run: |
