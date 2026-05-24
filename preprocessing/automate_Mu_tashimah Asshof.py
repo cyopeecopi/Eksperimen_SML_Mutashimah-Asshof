@@ -5,7 +5,8 @@ from sklearn.preprocessing import StandardScaler
 def load_data(file_path):
     """Fungsi untuk memuat dataset."""
     print(f"Membaca data dari: {file_path}")
-    df = pd.read_csv(file_path)
+    # Tambahkan sep=';' agar Python membaca kolom dengan benar
+    df = pd.read_csv(file_path, sep=';') 
     return df
 
 def clean_and_preprocess(df):
