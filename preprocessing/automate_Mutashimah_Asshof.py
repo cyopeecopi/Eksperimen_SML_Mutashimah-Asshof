@@ -1,63 +1,34 @@
 import pandas as pd
-import os
 from sklearn.preprocessing import StandardScaler
+import os
 
-def load_data(file_path):
-    """Fungsi untuk memuat dataset."""
-    print(f"Membaca data dari: {file_path}")
-    # Tambahkan sep=';' agar Python membaca kolom dengan benar
-    df = pd.read_csv(file_path, sep=';') 
-    return df
-
-def clean_and_preprocess(df):
-    """Fungsi untuk membersihkan dan memproses data."""
-    print("Memulai proses preprocessing...")
+def run_preprocessing(input_path, output_path):
+    print(f"1. Membaca data dari {input_path}...")
+    column_names = ['id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean', 'smoothness_mean', 'compactness_mean', 'concavity_mean', 'concave_points_mean', 'symmetry_mean', 'fractal_dimension_mean', 'radius_se', 'texture_se', 'perimeter_se', 'area_se', 'smoothness_se', 'compactness_se', 'concavity_se', 'concave_points_se', 'symmetry_se', 'fractal_dimension_se', 'radius_worst', 'texture_worst', 'perimeter_worst', 'area_worst', 'smoothness_worst', 'compactness_worst', 'concavity_worst', 'concave_points_worst', 'symmetry_worst', 'fractal_dimension_worst']
+    df = pd.read_csv(input_path, header=None, names=column_names)
     
-    # 1. Menghapus missing values jika ada
-    df_clean = df.dropna().copy()
+    print("2. Melakukan pembersihan data...")
+    df = df.drop_duplicates()
+    df = df.drop('id', axis=1)
+    df['diagnosis'] = df['diagnosis'].map({'M': 1, 'B': 0})
     
-    # 2. Memisahkan fitur (X) dan target (y)
-    # Asumsi kolom target pada Wine Quality adalah 'quality'
-    X = df_clean.drop('quality', axis=1)
-    y = df_clean['quality']
-    
-    # 3. Standarisasi fitur numerik
+    print("3. Standarisasi fitur...")
+    X = df.drop('diagnosis', axis=1)
+    y = df['diagnosis']
     scaler = StandardScaler()
     X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
     
-    # 4. Menggabungkan kembali fitur yang sudah diskalakan dengan target
-    df_final = pd.concat([X_scaled, y.reset_index(drop=True)], axis=1)
+    print(f"4. Menyimpan data ke {output_path}...")
+    df_final = X_scaled.copy()
+    df_final['diagnosis'] = y.values
     
-    print("Preprocessing selesai.")
-    return df_final
-
-def save_data(df, output_path):
-    """Fungsi untuk menyimpan data yang sudah bersih."""
-    print(f"Menyimpan data bersih ke: {output_path}")
-    df.to_csv(output_path, index=False)
-    print("Data berhasil disimpan!")
+    # Memastikan folder tujuan ada
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df_final.to_csv(output_path, index=False)
+    print("Otomatisasi Preprocessing Selesai!")
 
 if __name__ == "__main__":
-    # --- Konfigurasi Path ---
-    # Path disesuaikan dengan asumsi script dijalankan dari root folder
-    INPUT_FILE = "dataset_raw/wine_quality.csv"
-    OUTPUT_FOLDER = "dataset_preprocessing"
-    OUTPUT_FILE = f"{OUTPUT_FOLDER}/wine_quality_clean.csv"
-    
-    # Membuat folder output jika belum ada
-    if not os.path.exists(OUTPUT_FOLDER):
-        os.makedirs(OUTPUT_FOLDER)
-    
-    # --- Eksekusi Pipeline Preprocessing ---
-    try:
-        # Step 1: Load Data
-        raw_data = load_data(INPUT_FILE)
-        
-        # Step 2: Preprocess Data
-        processed_data = clean_and_preprocess(raw_data)
-        
-        # Step 3: Save Data
-        save_data(processed_data, OUTPUT_FILE)
-        
-    except Exception as e:
-        print(f"Terjadi kesalahan pada pipeline: {e}")
+    # Path disesuaikan agar bisa dijalankan dari root GitHub (Langkah 4)
+    RAW_DATA_PATH = "wdbc_raw/wdbc.data"
+    PROCESSED_DATA_PATH = "preprocessing/wdbc_preprocessing/wdbc_preprocessed.csv"
+    run_preprocessing(RAW_DATA_PATH, PROCESSED_DATA_PATH)

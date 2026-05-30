@@ -2,36 +2,35 @@ name: Automated Data Preprocessing
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'wdbc_raw/**'
+      - 'preprocessing/automate_*.py'
+  workflow_dispatch:
 
 jobs:
-  build:
+  run-preprocessing:
     runs-on: ubuntu-latest
-
     steps:
-    - name: 1. Mengambil kode dari repositori
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: 2. Menyiapkan Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: 3. Menginstal Library
-      run: |
-        python -m pip install --upgrade pip
-        pip install pandas scikit-learn
+      - name: Install Dependencies
+        run: |
+          pip install pandas scikit-learn
 
-    - name: 4. Menjalankan Script Preprocessing
-      # PENTING: Ganti dengan nama file asli milikmu!
-      run: |
-        python preprocessing/automate_Mutashimah_Asshof.py
+      - name: Execute Automation Script
+        run: |
+          python preprocessing/automate_*.py
 
-    - name: 5. Menyimpan Data Bersih ke Repositori
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add dataset_preprocessing/
-        git commit -m "Auto-process data via GitHub Actions" || echo "Tidak ada perubahan data"
-        git push
+      - name: Commit and Push Processed Data
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add preprocessing/wdbc_preprocessing/
+          git commit -m "Auto-update preprocessed dataset" || echo "No changes to commit"
+          git push
